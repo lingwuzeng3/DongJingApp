@@ -41,8 +41,6 @@ android {
     buildFeatures {
         compose = true
     }
-
-
 }
 
 dependencies {
@@ -50,13 +48,24 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
     // 协程依赖
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation(platform(libs.androidx.compose.bom))
+
+    // 【修改点 1】：强制将 Compose BOM 更新到 2024.10.00，以支持 PullToRefreshBox
+    // 替换了原有的 implementation(platform(libs.androidx.compose.bom))
+    implementation(platform("androidx.compose:compose-bom:2024.10.00"))
+
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
+
+    // 这里的 material3 会自动跟随上面的 BOM 版本升级到 1.3.0+
     implementation(libs.androidx.compose.material3)
+
+    // 添加缺失的依赖
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.foundation:foundation")
 
     // 导航组件
     implementation("androidx.navigation:navigation-compose:2.7.7")
@@ -77,12 +86,14 @@ dependencies {
     implementation("com.google.android.exoplayer:exoplayer-ui:2.19.1")
 
     // 姿态估计 - MediaPipe Tasks Vision
-    implementation("com.google.mediapipe:mediapipe-tasks-vision:0.10.9")
+    // 暂时注释掉，避免依赖解析失败
+    // implementation("com.google.mediapipe:mediapipe-tasks-vision:0.10.9")
 
     // AR功能 - ARCore
-    implementation("com.google.ar:core:1.37.0")
+    // 暂时注释掉，避免依赖解析失败
+    // implementation("com.google.ar:core:1.37.0")
     // 添加 Sceneform 用于 AR 渲染（可选）
-    implementation("com.google.ar.sceneform:sceneform:1.17.1")
+    // implementation("com.google.ar.sceneform:sceneform:1.17.1")
 
     // 图片加载（推荐添加）
     implementation("io.coil-kt:coil-compose:2.6.0")
@@ -94,7 +105,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    // 【修改点 2】：测试环境的 BOM 也同步强制更新
+    // 替换了原有的 androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.10.00"))
+
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

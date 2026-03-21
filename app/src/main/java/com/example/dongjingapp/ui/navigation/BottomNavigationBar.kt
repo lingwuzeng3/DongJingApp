@@ -15,6 +15,11 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Person
 
 /**
  * 底部导航栏
@@ -67,26 +72,26 @@ val bottomNavigationItems = listOf(
     BottomNavigationItem(
         route = "home",
         title = "首页",
-        icon = androidx.compose.material.icons.Icons.Default.Home
+        icon = Icons.Filled.Home
     ),
     BottomNavigationItem(
         route = "courses",
         title = "课程",
-        icon = androidx.compose.material.icons.Icons.Default.Book
+        icon = Icons.Filled.Book
     ),
     BottomNavigationItem(
         route = "ar",
         title = "AR训练",
-        icon = androidx.compose.material.icons.Icons.Default.VideoCamera
+        icon = Icons.Filled.Videocam
     ),
     BottomNavigationItem(
         route = "stats",
         title = "数据",
-        icon = androidx.compose.material.icons.Icons.Default.TrendingUp
+        icon = Icons.Filled.TrendingUp
     ),
     BottomNavigationItem(
         route = "profile",
         title = "我的",
-        icon = androidx.compose.material.icons.Icons.Default.Person
+        icon = Icons.Filled.Person
     )
 )

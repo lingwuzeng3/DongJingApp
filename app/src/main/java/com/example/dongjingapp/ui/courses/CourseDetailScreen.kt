@@ -4,13 +4,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,9 +54,9 @@ fun CourseDetailScreen(courseId: String, onBack: () -> Unit) {
             TopAppBar(
                 title = { Text("课程详情") },
                 navigationIcon = {
-                    androidx.compose.material3.IconButton(onClick = onBack) {
-                        androidx.compose.material3.Icon(
-                            imageVector = androidx.compose.material.icons.Icons.Default.ArrowBack,
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "返回"
                         )
                     }
@@ -108,7 +114,7 @@ fun CourseDetailScreen(courseId: String, onBack: () -> Unit) {
                 InfoRow(label = "评分", value = "⭐ ${course.rating} (${course.reviewCount}条评论)")
                 
                 // 开始训练按钮
-                androidx.compose.material3.Button(
+                Button(
                     onClick = {},
                     modifier = Modifier
                         .fillMaxWidth()

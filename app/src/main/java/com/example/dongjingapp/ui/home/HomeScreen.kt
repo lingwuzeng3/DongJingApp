@@ -43,9 +43,7 @@ import androidx.navigation.compose.rememberNavController
  * 包含搜索栏、轮播图、功能入口和课程分类
  */
 @Composable
-fun HomeScreen() {
-    val navController = rememberNavController()
-    
+fun HomeScreen(navController: androidx.navigation.NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,8 +83,9 @@ fun SearchBar() {
                 .fillMaxWidth()
                 .height(48.dp),
             shape = RoundedCornerShape(24.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color(0xFFF9FAFB),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFF9FAFB),
+                unfocusedContainerColor = Color(0xFFF9FAFB),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             )
@@ -147,7 +146,7 @@ fun FeatureEntries(navController: NavController) {
             onClick = { /* TODO: 导航到训练页面 */ }
         )
         FeatureEntry(
-            icon = android.R.drawable.ic_videocam,
+            icon = android.R.drawable.ic_media_ff,
             title = "AR模式",
             onClick = { navController.navigate("ar") }
         )

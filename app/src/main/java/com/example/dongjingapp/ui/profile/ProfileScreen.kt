@@ -1,8 +1,6 @@
 package com.example.dongjingapp.ui.profile
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,25 +10,39 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Fireplace
+import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeRefresh
-import androidx.compose.material3.SwipeRefreshState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +54,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.dongjingapp.data.service.UserService
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * 个人中心屏幕
@@ -52,25 +66,23 @@ fun ProfileScreen() {
     val userService = UserService()
     val user = userService.getCurrentUser()
     val userStats = userService.getUserStats()
-    
+    val coroutineScope = rememberCoroutineScope()
+
     // 状态管理
-    val (isRefreshing, setIsRefreshing) = remember {
-        mutableStateOf(false)
-    }
-    val (isLoading, setIsLoading) = remember {
-        mutableStateOf(false)
-    }
-    
+    val isRefreshing = remember { mutableStateOf(false) }
+
     // 刷新功能
-    val onRefresh = {
-        setIsRefreshing(true)
-        // 模拟网络请求延迟
-        kotlinx.coroutines.MainScope().launch {
-            kotlinx.coroutines.delay(1000)
-            setIsRefreshing(false)
+    val onRefresh: () -> Unit = {
+        isRefreshing.value = true
+        coroutineScope.launch {
+            delay(1000)
+            isRefreshing.value = false
         }
     }
-    
+
+    // 创建 PullToRefresh 状态
+    val pullToRefreshState = rememberPullToRefreshState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -81,62 +93,36 @@ fun ProfileScreen() {
                 )
             )
         }
-    ) {
-        SwipeRefresh(
-            state = SwipeRefreshState(isRefreshing),
+    ) { paddingValues ->
+        // 使用 PullToRefreshBox 替代 SwipeRefresh
+        PullToRefreshBox(
+            state = pullToRefreshState,
+            isRefreshing = isRefreshing.value,
             onRefresh = onRefresh,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues) // 将 paddingValues 移到此处，确保刷新指示器位置正确
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it)
                     .verticalScroll(rememberScrollState())
             ) {
                 // 顶部用户信息区域
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn() + scaleIn()
-                ) {
-                    UserInfoSection(user = user)
-                }
-                
+                UserInfoSection(user = user)
+
                 // 身体数据卡片
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn() + scaleIn(),
-                    initialVisibility = false
-                ) {
-                    BodyDataSection(user = user)
-                }
-                
+                BodyDataSection(user = user)
+
                 // 训练统计卡片
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn() + scaleIn(),
-                    initialVisibility = false
-                ) {
-                    TrainingStatsSection(stats = userStats)
-                }
-                
+                TrainingStatsSection(stats = userStats)
+
                 // 设置功能模块
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn() + scaleIn(),
-                    initialVisibility = false
-                ) {
-                    SettingsSection()
-                }
-                
+                SettingsSection()
+
                 // 其他功能
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn() + scaleIn(),
-                    initialVisibility = false
-                ) {
-                    OtherSection()
-                }
-                
+                OtherSection()
+
                 // 底部间距
                 Box(modifier = Modifier.height(32.dp))
             }
@@ -175,7 +161,7 @@ fun UserInfoSection(user: com.example.dongjingapp.data.model.User) {
                     .clip(CircleShape)
                     .background(Color.White)
             )
-            
+
             // 用户名
             Text(
                 text = user.username,
@@ -184,21 +170,21 @@ fun UserInfoSection(user: com.example.dongjingapp.data.model.User) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 12.dp)
             )
-            
+
             // 邮箱
             Text(
                 text = user.email,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.8),
+                color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier.padding(top = 4.dp)
             )
-            
+
             // 编辑资料按钮
-            androidx.compose.material3.TextButton(
+            TextButton(
                 onClick = {},
                 modifier = Modifier
                     .padding(top = 16.dp)
-                    .background(Color.White.copy(alpha = 0.2), MaterialTheme.shapes.medium)
+                    .background(color = Color.White.copy(alpha = 0.2f), shape = MaterialTheme.shapes.medium)
             ) {
                 Text(
                     text = "编辑资料",
@@ -230,7 +216,7 @@ fun BodyDataSection(user: com.example.dongjingapp.data.model.User) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
@@ -240,20 +226,20 @@ fun BodyDataSection(user: com.example.dongjingapp.data.model.User) {
                     label = "身高",
                     value = "${user.height ?: "--"} cm"
                 )
-                
+
                 // 体重
                 DataItem(
                     label = "体重",
                     value = "${user.weight ?: "--"} kg"
                 )
-                
+
                 // BMI
                 DataItem(
                     label = "BMI",
                     value = calculateBMI(user.height, user.weight)
                 )
             }
-            
+
             // 健身目标
             Box(
                 modifier = Modifier
@@ -333,35 +319,35 @@ fun TrainingStatsSection(stats: com.example.dongjingapp.data.service.UserStats) 
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 // 完成课程数
                 StatItem(
-                    icon = androidx.compose.material.icons.Icons.Default.Book,
+                    icon = Icons.Filled.Book,
                     value = stats.completedCourses.toString(),
                     label = "课程"
                 )
-                
+
                 // 总训练时间
                 StatItem(
-                    icon = androidx.compose.material.icons.Icons.Default.AccessTime,
+                    icon = Icons.Filled.AccessTime,
                     value = "${stats.totalTrainingTime / 60}h",
                     label = "时长"
                 )
-                
+
                 // 消耗卡路里
                 StatItem(
-                    icon = androidx.compose.material.icons.Icons.Default.LocalFireDepartment,
+                    icon = Icons.Filled.LocalFireDepartment,
                     value = stats.totalCaloriesBurned.toString(),
                     label = "卡路里"
                 )
-                
+
                 // 连续训练天数
                 StatItem(
-                    icon = androidx.compose.material.icons.Icons.Default.Fireplace,
+                    icon = Icons.Filled.Fireplace,
                     value = stats.streakDays.toString(),
                     label = "连续"
                 )
@@ -417,22 +403,22 @@ fun SettingsSection() {
     ) {
         Column {
             SettingItem(
-                icon = androidx.compose.material.icons.Icons.Default.AccountCircle,
+                icon = Icons.Filled.AccountCircle,
                 title = "账号设置",
                 onClick = {}
             )
             SettingItem(
-                icon = androidx.compose.material.icons.Icons.Default.Notifications,
+                icon = Icons.Filled.Notifications,
                 title = "通知设置",
                 onClick = {}
             )
             SettingItem(
-                icon = androidx.compose.material.icons.Icons.Default.Lock,
+                icon = Icons.Filled.Lock,
                 title = "隐私设置",
                 onClick = {}
             )
             SettingItem(
-                icon = androidx.compose.material.icons.Icons.Default.Settings,
+                icon = Icons.Filled.Settings,
                 title = "通用设置",
                 onClick = {}
             )
@@ -454,17 +440,17 @@ fun OtherSection() {
     ) {
         Column {
             SettingItem(
-                icon = androidx.compose.material.icons.Icons.Default.Info,
+                icon = Icons.Filled.Info,
                 title = "关于我们",
                 onClick = {}
             )
             SettingItem(
-                icon = androidx.compose.material.icons.Icons.Default.Help,
+                icon = Icons.Filled.Help,
                 title = "帮助与反馈",
                 onClick = {}
             )
             SettingItem(
-                icon = androidx.compose.material.icons.Icons.Default.Logout,
+                icon = Icons.Filled.Logout,
                 title = "退出登录",
                 onClick = {},
                 isLast = true
@@ -483,7 +469,7 @@ fun SettingItem(
     onClick: () -> Unit,
     isLast: Boolean = false
 ) {
-    androidx.compose.material3.ListItem(
+    ListItem(
         leadingContent = {
             Icon(
                 imageVector = icon,
@@ -496,7 +482,7 @@ fun SettingItem(
         },
         trailingContent = {
             Icon(
-                imageVector = androidx.compose.material.icons.Icons.Default.ChevronRight,
+                imageVector = Icons.Filled.ChevronRight,
                 contentDescription = "更多",
                 tint = Color(0xFF9CA3AF)
             )
@@ -510,7 +496,6 @@ fun SettingItem(
                     this
                 }
             }
-            .background(if (!isLast) Color(0xFFF3F4F6) else Color.Transparent),
-        onClick = onClick
+            .background(color = if (!isLast) Color(0xFFF3F4F6) else Color.Transparent)
     )
 }
