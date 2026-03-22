@@ -18,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Videocam
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Person
 
 /**
@@ -31,13 +31,32 @@ fun BottomNavigationBar(navController: NavHostController) {
     val currentDestination = backStackEntry?.destination
 
     BottomAppBar {
-        bottomNavigationItems.forEach {item ->
+        bottomNavigationItems.forEach { item ->
+            val route = currentDestination?.route.orEmpty()
+            val selected = when (item.route) {
+                "courses" -> route.startsWith("courses")
+                else -> currentDestination?.hierarchy?.any { it.route == item.route } == true
+            }
             NavigationBarItem(
                 icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
                 label = { Text(item.title) },
-                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                selected = selected,
                 onClick = {
-                    navController.navigate(item.route) {
+                    if (item.route == "home") {
+                        navController.navigate("home") {
+                            // 弹出栈上 home 及其之上的所有页面（含从首页跳进课程列表/详情的记录），再进入干净的首页
+                            popUpTo("home") { inclusive = true }
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                        return@NavigationBarItem
+                    }
+                    val targetRoute = if (item.route == "courses") {
+                        "courses?initialCategory=全部"
+                    } else {
+                        item.route
+                    }
+                    navController.navigate(targetRoute) {
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
                         }
@@ -87,7 +106,7 @@ val bottomNavigationItems = listOf(
     BottomNavigationItem(
         route = "stats",
         title = "数据",
-        icon = Icons.Filled.TrendingUp
+        icon = Icons.AutoMirrored.Filled.TrendingUp
     ),
     BottomNavigationItem(
         route = "profile",

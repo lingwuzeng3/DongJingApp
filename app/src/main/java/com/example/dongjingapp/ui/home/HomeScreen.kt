@@ -35,8 +35,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.net.Uri
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 
 /**
  * 首页屏幕
@@ -143,7 +143,7 @@ fun FeatureEntries(navController: NavController) {
         FeatureEntry(
             icon = android.R.drawable.ic_media_play,
             title = "开始训练",
-            onClick = { /* TODO: 导航到训练页面 */ }
+            onClick = { navController.navigate("training/1") }
         )
         FeatureEntry(
             icon = android.R.drawable.ic_media_ff,
@@ -243,7 +243,11 @@ fun CourseCategories(navController: NavController) {
                     title = "有氧运动",
                     count = "24",
                     color = Color(0xFFF97316), // 辅助色：橙色
-                    onClick = { /* TODO: 导航到有氧运动课程 */ }
+                    onClick = {
+                        navController.navigate(
+                            "courses?initialCategory=${Uri.encode("有氧")}"
+                        )
+                    }
                 )
             }
             item {
@@ -251,7 +255,11 @@ fun CourseCategories(navController: NavController) {
                     title = "力量训练",
                     count = "18",
                     color = Color(0xFF10B981), // 辅助色：绿色
-                    onClick = { /* TODO: 导航到力量训练课程 */ }
+                    onClick = {
+                        navController.navigate(
+                            "courses?initialCategory=${Uri.encode("力量")}"
+                        )
+                    }
                 )
             }
             item {
@@ -259,7 +267,11 @@ fun CourseCategories(navController: NavController) {
                     title = "瑜伽",
                     count = "32",
                     color = Color(0xFFFF6B6B), // 粉红色
-                    onClick = { /* TODO: 导航到瑜伽课程 */ }
+                    onClick = {
+                        navController.navigate(
+                            "courses?initialCategory=${Uri.encode("瑜伽")}"
+                        )
+                    }
                 )
             }
             item {
@@ -267,7 +279,11 @@ fun CourseCategories(navController: NavController) {
                     title = "拉伸",
                     count = "15",
                     color = Color(0xFF8B5CF6), // 紫色
-                    onClick = { /* TODO: 导航到拉伸课程 */ }
+                    onClick = {
+                        navController.navigate(
+                            "courses?initialCategory=${Uri.encode("拉伸")}"
+                        )
+                    }
                 )
             }
         }

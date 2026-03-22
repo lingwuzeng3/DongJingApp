@@ -1,5 +1,7 @@
 package com.example.dongjingapp.data.service
 
+import com.example.dongjingapp.data.DemoMedia
+
 /**
  * 视频服务
  * 提供视频管理相关的功能
@@ -14,18 +16,16 @@ class VideoService {
     }
     
     /**
-     * 上传视频
+     * 上传视频（网络上传请使用 [com.example.dongjingapp.data.repository.VideoUploadRepository]）
      */
     fun uploadVideo(video: Video): Boolean {
-        // TODO: 实现视频上传逻辑
         return true
     }
-    
+
     /**
-     * 删除视频
+     * 删除视频（当前为本地演示列表；接入后端后在此同步远端）
      */
     fun deleteVideo(videoId: String): Boolean {
-        // TODO: 实现视频删除逻辑
         return true
     }
     
@@ -46,8 +46,8 @@ class VideoService {
             description = "适合早晨起床后的瑜伽练习，帮助唤醒身体",
             duration = 600, // 10分钟
             views = 1234,
-            thumbnailUrl = "",
-            videoUrl = "",
+            thumbnailUrl = "https://picsum.photos/seed/djv1/800/450",
+            videoUrl = DemoMedia.SAMPLE_MP4_SHORT,
             createdAt = System.currentTimeMillis()
         ),
         Video(
@@ -56,8 +56,8 @@ class VideoService {
             description = "15分钟高强度间歇训练，快速燃烧脂肪",
             duration = 900, // 15分钟
             views = 2345,
-            thumbnailUrl = "",
-            videoUrl = "",
+            thumbnailUrl = "https://picsum.photos/seed/djv2/800/450",
+            videoUrl = DemoMedia.SAMPLE_MP4_ALT,
             createdAt = System.currentTimeMillis()
         ),
         Video(
@@ -66,8 +66,8 @@ class VideoService {
             description = "针对核心肌群的力量训练，提高身体稳定性",
             duration = 1200, // 20分钟
             views = 1876,
-            thumbnailUrl = "",
-            videoUrl = "",
+            thumbnailUrl = "https://picsum.photos/seed/djv3/800/450",
+            videoUrl = DemoMedia.SAMPLE_MP4_SHORT,
             createdAt = System.currentTimeMillis()
         ),
         Video(
@@ -76,8 +76,8 @@ class VideoService {
             description = "10分钟冥想练习，缓解压力，提高专注力",
             duration = 600, // 10分钟
             views = 987,
-            thumbnailUrl = "",
-            videoUrl = "",
+            thumbnailUrl = "https://picsum.photos/seed/djv4/800/450",
+            videoUrl = DemoMedia.SAMPLE_MP4_ALT,
             createdAt = System.currentTimeMillis()
         )
     )

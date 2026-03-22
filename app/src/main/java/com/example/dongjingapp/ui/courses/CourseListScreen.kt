@@ -6,6 +6,8 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +35,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,18 +49,22 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.dongjingapp.data.model.Course
-import com.example.dongjingapp.data.service.CourseService
+import com.example.dongjingapp.data.repository.CourseRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
  * 课程列表屏幕
+ * @param initialCategory 从首页分类等入口传入的默认筛选（如：有氧、瑜伽、拉伸）
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun CourseListScreen(navController: androidx.navigation.NavHostController) {
-    val courseService = CourseService()
-    val allCourses = courseService.getCourses()
+fun CourseListScreen(
+    navController: androidx.navigation.NavHostController,
+    initialCategory: String = "全部"
+) {
+    val courseRepository = CourseRepository()
+    val allCourses = courseRepository.getCourses()
     val coroutineScope = rememberCoroutineScope()
 
     // 状态管理
@@ -67,8 +74,8 @@ fun CourseListScreen(navController: androidx.navigation.NavHostController) {
     val isRefreshing = remember {
         mutableStateOf(false)
     }
-    val (selectedCategory, setSelectedCategory) = remember {
-        mutableStateOf("全部")
+    val (selectedCategory, setSelectedCategory) = remember(initialCategory) {
+        mutableStateOf(initialCategory)
     }
     val (selectedDifficulty, setSelectedDifficulty) = remember {
         mutableStateOf("全部")
@@ -78,6 +85,10 @@ fun CourseListScreen(navController: androidx.navigation.NavHostController) {
     }
     val (isLoading, setIsLoading) = remember {
         mutableStateOf(false)
+    }
+
+    LaunchedEffect(selectedCategory, selectedDifficulty, selectedSort, allCourses) {
+        applyFiltersAndSort(allCourses, selectedCategory, selectedDifficulty, selectedSort, setCourses)
     }
 
     // 创建 PullToRefresh 状态
@@ -246,6 +257,7 @@ fun applyFiltersAndSort(
 /**
  * 筛选和排序选项
  */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FilterAndSortSection(
     selectedCategory: String,
@@ -277,8 +289,9 @@ fun FilterAndSortSection(
                 color = Color(0xFF6B7280),
                 modifier = Modifier.padding(bottom = 4.dp)
             )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 FilterChipItem(
                     label = "全部",
@@ -299,6 +312,11 @@ fun FilterAndSortSection(
                     label = "力量",
                     isSelected = selectedCategory == "力量",
                     onClick = { onCategoryChange("力量") }
+                )
+                FilterChipItem(
+                    label = "拉伸",
+                    isSelected = selectedCategory == "拉伸",
+                    onClick = { onCategoryChange("拉伸") }
                 )
             }
         }

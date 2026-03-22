@@ -4,22 +4,26 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.dongjingapp.ui.home.HomeScreen
-import com.example.dongjingapp.ui.courses.CourseListScreen
-import com.example.dongjingapp.ui.courses.CourseDetailScreen
-import com.example.dongjingapp.ui.profile.ProfileScreen
+import androidx.navigation.navArgument
 import com.example.dongjingapp.ui.ar.ARScreen
+import com.example.dongjingapp.ui.courses.CourseDetailScreen
+import com.example.dongjingapp.ui.courses.CourseListScreen
+import com.example.dongjingapp.ui.home.HomeScreen
+import com.example.dongjingapp.ui.profile.ProfileScreen
 import com.example.dongjingapp.ui.stats.StatsScreen
-import com.example.dongjingapp.ui.video.VideoLibraryScreen
-import com.example.dongjingapp.ui.video.VideoUploadScreen
+import com.example.dongjingapp.ui.training.TrainingPlayerScreen
 import com.example.dongjingapp.ui.video.VideoCompareScreen
+import com.example.dongjingapp.ui.video.VideoLibraryScreen
+import com.example.dongjingapp.ui.video.VideoPlayerScreen
+import com.example.dongjingapp.ui.video.VideoUploadScreen
 
 /**
  * 应用导航组件
@@ -28,66 +32,100 @@ import com.example.dongjingapp.ui.video.VideoCompareScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val route = navBackStackEntry?.destination?.route.orEmpty()
+    val hideBottomBar =
+        route.startsWith("training/") ||
+            route.startsWith("video/player/") ||
+            route == "video/upload"
+
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(navController = navController)
+            if (!hideBottomBar) {
+                BottomNavigationBar(navController = navController)
+            }
         }
-    ) {
+    ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = it.calculateBottomPadding())
+                .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
             NavHost(
                 navController = navController,
                 startDestination = "home"
             ) {
-                // 首页
                 composable(route = "home") {
                     HomeScreen(navController = navController)
                 }
-                
-                // 课程列表
-                composable(route = "courses") {
-                    CourseListScreen(navController = navController)
+
+                composable(
+                    route = "courses?initialCategory={initialCategory}",
+                    arguments = listOf(
+                        navArgument("initialCategory") {
+                            type = NavType.StringType
+                            defaultValue = "全部"
+                        }
+                    )
+                ) { backStackEntry ->
+                    val initialCategory =
+                        backStackEntry.arguments?.getString("initialCategory") ?: "全部"
+                    CourseListScreen(
+                        navController = navController,
+                        initialCategory = initialCategory
+                    )
                 }
-                
-                // 课程详情
+
                 composable(route = "course/{courseId}") {
                     val courseId = it.arguments?.getString("courseId") ?: ""
                     CourseDetailScreen(
                         courseId = courseId,
+                        onBack = { navController.popBackStack() },
+                        onStartTraining = {
+                            navController.navigate("training/$courseId")
+                        }
+                    )
+                }
+
+                composable(route = "training/{courseId}") {
+                    val courseId = it.arguments?.getString("courseId") ?: ""
+                    TrainingPlayerScreen(
+                        courseId = courseId,
                         onBack = { navController.popBackStack() }
                     )
                 }
-                
-                // 个人中心
+
                 composable(route = "profile") {
                     ProfileScreen()
                 }
-                
-                // AR训练
+
                 composable(route = "ar") {
                     ARScreen()
                 }
-                
-                // 数据统计
+
                 composable(route = "stats") {
                     StatsScreen()
                 }
-                
-                // 视频管理
+
                 composable(route = "video/library") {
-                    VideoLibraryScreen()
+                    VideoLibraryScreen(navController = navController)
                 }
-                
-                // 视频上传
+
+                composable(
+                    route = "video/player/{videoId}",
+                    arguments = listOf(navArgument("videoId") { type = NavType.StringType })
+                ) { entry ->
+                    val videoId = entry.arguments?.getString("videoId").orEmpty()
+                    VideoPlayerScreen(
+                        videoId = videoId,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
                 composable(route = "video/upload") {
                     VideoUploadScreen()
                 }
-                
-                // 视频对比
+
                 composable(route = "video/compare") {
                     VideoCompareScreen()
                 }

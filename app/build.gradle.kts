@@ -1,8 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    // 移除 kotlin("kapt")，改为添加 ksp 插件
-    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
+    id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 }
 
 android {
@@ -52,6 +51,9 @@ dependencies {
     // 协程依赖
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+
     // 【修改点 1】：强制将 Compose BOM 更新到 2024.10.00，以支持 PullToRefreshBox
     // 替换了原有的 implementation(platform(libs.androidx.compose.bom))
     implementation(platform("androidx.compose:compose-bom:2024.10.00"))
@@ -70,24 +72,31 @@ dependencies {
     // 导航组件
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    // 本地数据存储 - 使用 ksp 替代 kapt
-    implementation("androidx.room:room-runtime:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")  // 原来是 kapt
-    implementation("androidx.room:room-ktx:2.6.1")
+    // 本地数据存储（与 Kotlin 2.2 + KSP 2.0.x 配套使用较新版本）
+    implementation("androidx.room:room-runtime:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
 
     // 网络请求
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     // 添加 OkHttp 日志拦截器（可选）
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
-    // 视频播放
-    implementation("com.google.android.exoplayer:exoplayer:2.19.1")
-    implementation("com.google.android.exoplayer:exoplayer-ui:2.19.1")
+    // 视频播放（Media3，替代已弃用的 com.google.android.exoplayer2）
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+
+    // CameraX（AR 预览 / 分析）
+    val cameraX = "1.4.1"
+    implementation("androidx.camera:camera-core:$cameraX")
+    implementation("androidx.camera:camera-camera2:$cameraX")
+    implementation("androidx.camera:camera-lifecycle:$cameraX")
+    implementation("androidx.camera:camera-view:$cameraX")
 
     // 姿态估计 - MediaPipe Tasks Vision
-    // 暂时注释掉，避免依赖解析失败
-    // implementation("com.google.mediapipe:mediapipe-tasks-vision:0.10.9")
+    implementation("com.google.mediapipe:tasks-vision:0.10.14")
 
     // AR功能 - ARCore
     // 暂时注释掉，避免依赖解析失败

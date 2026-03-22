@@ -1,5 +1,6 @@
 package com.example.dongjingapp.data.service
 
+import com.example.dongjingapp.data.DemoMedia
 import com.example.dongjingapp.data.model.Course
 
 /**
@@ -48,7 +49,7 @@ class CourseService {
             difficulty = "初级",
             duration = 20,
             coverImage = "https://neeko-copilot.bytedance.net/api/text2image?prompt=yoga%20stretching%20in%20morning%20light&size=800x600",
-            videoUrl = "",
+            videoUrl = DemoMedia.SAMPLE_MP4_SHORT,
             trainerName = "张教练",
             rating = 4.8f,
             reviewCount = 128,
@@ -62,7 +63,7 @@ class CourseService {
             difficulty = "高级",
             duration = 30,
             coverImage = "https://neeko-copilot.bytedance.net/api/text2image?prompt=high%20intensity%20interval%20training%20workout&size=800x600",
-            videoUrl = "",
+            videoUrl = DemoMedia.SAMPLE_MP4_ALT,
             trainerName = "李教练",
             rating = 4.7f,
             reviewCount = 95,
@@ -76,7 +77,7 @@ class CourseService {
             difficulty = "初级",
             duration = 45,
             coverImage = "https://neeko-copilot.bytedance.net/api/text2image?prompt=strength%20training%20basics%20gym&size=800x600",
-            videoUrl = "",
+            videoUrl = DemoMedia.SAMPLE_MP4_SHORT,
             trainerName = "王教练",
             rating = 4.9f,
             reviewCount = 156,
@@ -90,7 +91,7 @@ class CourseService {
             difficulty = "初级",
             duration = 15,
             coverImage = "https://neeko-copilot.bytedance.net/api/text2image?prompt=meditation%20relaxation%20peaceful%20setting&size=800x600",
-            videoUrl = "",
+            videoUrl = DemoMedia.SAMPLE_MP4_SHORT,
             trainerName = "刘教练",
             rating = 4.6f,
             reviewCount = 87,
@@ -104,7 +105,7 @@ class CourseService {
             difficulty = "中级",
             duration = 35,
             coverImage = "https://neeko-copilot.bytedance.net/api/text2image?prompt=core%20training%20advanced%20exercises&size=800x600",
-            videoUrl = "",
+            videoUrl = DemoMedia.SAMPLE_MP4_SHORT,
             trainerName = "陈教练",
             rating = 4.8f,
             reviewCount = 112,
@@ -118,10 +119,38 @@ class CourseService {
             difficulty = "中级",
             duration = 40,
             coverImage = "https://neeko-copilot.bytedance.net/api/text2image?prompt=dance%20fitness%20class%20energetic&size=800x600",
-            videoUrl = "",
+            videoUrl = DemoMedia.SAMPLE_MP4_ALT,
             trainerName = "赵教练",
             rating = 4.9f,
             reviewCount = 143,
+            createdAt = System.currentTimeMillis()
+        ),
+        Course(
+            id = "7",
+            title = "全身动态拉伸",
+            description = "训练前后全身关节与肌肉拉伸，降低受伤风险",
+            category = "拉伸",
+            difficulty = "初级",
+            duration = 12,
+            coverImage = "https://neeko-copilot.bytedance.net/api/text2image?prompt=stretching%20exercise%20flexibility&size=800x600",
+            videoUrl = DemoMedia.SAMPLE_MP4_SHORT,
+            trainerName = "周教练",
+            rating = 4.7f,
+            reviewCount = 76,
+            createdAt = System.currentTimeMillis()
+        ),
+        Course(
+            id = "8",
+            title = "办公族肩颈拉伸",
+            description = "针对久坐人群的肩颈与上背部放松",
+            category = "拉伸",
+            difficulty = "初级",
+            duration = 10,
+            coverImage = "https://neeko-copilot.bytedance.net/api/text2image?prompt=office%20neck%20stretch%20relax&size=800x600",
+            videoUrl = DemoMedia.SAMPLE_MP4_ALT,
+            trainerName = "周教练",
+            rating = 4.5f,
+            reviewCount = 54,
             createdAt = System.currentTimeMillis()
         )
     )

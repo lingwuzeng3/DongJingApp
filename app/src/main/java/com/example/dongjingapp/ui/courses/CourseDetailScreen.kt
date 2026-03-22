@@ -16,7 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,16 +28,20 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.dongjingapp.data.model.Course
-import com.example.dongjingapp.data.service.CourseService
+import com.example.dongjingapp.data.repository.CourseRepository
 
 /**
  * 课程详情屏幕
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CourseDetailScreen(courseId: String, onBack: () -> Unit) {
-    val courseService = CourseService()
-    val course = courseService.getCourseById(courseId)
+fun CourseDetailScreen(
+    courseId: String,
+    onBack: () -> Unit,
+    onStartTraining: () -> Unit = {}
+) {
+    val courseRepository = CourseRepository()
+    val course = courseRepository.getCourseById(courseId)
     
     if (course == null) {
         Box(
@@ -56,7 +60,7 @@ fun CourseDetailScreen(courseId: String, onBack: () -> Unit) {
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "返回"
                         )
                     }
@@ -115,7 +119,7 @@ fun CourseDetailScreen(courseId: String, onBack: () -> Unit) {
                 
                 // 开始训练按钮
                 Button(
-                    onClick = {},
+                    onClick = onStartTraining,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 24.dp)
