@@ -47,7 +47,7 @@ class VideoService {
             duration = 600, // 10分钟
             views = 1234,
             thumbnailUrl = "https://picsum.photos/seed/djv1/800/450",
-            videoUrl = DemoMedia.SAMPLE_MP4_SHORT,
+            videoUrl = DemoMedia.resolveVideoUrl(DemoMedia.SAMPLE_PATH_SHORT),
             createdAt = System.currentTimeMillis()
         ),
         Video(
@@ -57,7 +57,7 @@ class VideoService {
             duration = 900, // 15分钟
             views = 2345,
             thumbnailUrl = "https://picsum.photos/seed/djv2/800/450",
-            videoUrl = DemoMedia.SAMPLE_MP4_ALT,
+            videoUrl = DemoMedia.resolveVideoUrl(DemoMedia.SAMPLE_PATH_ALT),
             createdAt = System.currentTimeMillis()
         ),
         Video(
@@ -67,7 +67,7 @@ class VideoService {
             duration = 1200, // 20分钟
             views = 1876,
             thumbnailUrl = "https://picsum.photos/seed/djv3/800/450",
-            videoUrl = DemoMedia.SAMPLE_MP4_SHORT,
+            videoUrl = DemoMedia.resolveVideoUrl(DemoMedia.SAMPLE_PATH_SHORT),
             createdAt = System.currentTimeMillis()
         ),
         Video(
@@ -77,7 +77,7 @@ class VideoService {
             duration = 600, // 10分钟
             views = 987,
             thumbnailUrl = "https://picsum.photos/seed/djv4/800/450",
-            videoUrl = DemoMedia.SAMPLE_MP4_ALT,
+            videoUrl = DemoMedia.resolveVideoUrl(DemoMedia.SAMPLE_PATH_ALT),
             createdAt = System.currentTimeMillis()
         )
     )

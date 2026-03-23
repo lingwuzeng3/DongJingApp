@@ -12,7 +12,6 @@ import androidx.room.RoomDatabase
 )
 abstract class DongJingDatabase : RoomDatabase() {
     abstract fun trainingSessionDao(): TrainingSessionDao
-
     companion object {
         @Volatile
         private var instance: DongJingDatabase? = null

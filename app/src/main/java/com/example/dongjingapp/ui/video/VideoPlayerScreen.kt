@@ -1,5 +1,6 @@
 package com.example.dongjingapp.ui.video
 
+import android.app.Application
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,13 +16,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.dongjingapp.data.DemoMedia
+import com.example.dongjingapp.data.repository.SettingsRepository
+import com.example.dongjingapp.util.isWifiConnected
 import com.example.dongjingapp.data.service.VideoService
 import com.example.dongjingapp.ui.media.ExoPlayerVideoView
 import com.example.dongjingapp.ui.media.rememberExoPlayer
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,10 +35,15 @@ fun VideoPlayerScreen(
     videoId: String,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    val settingsRepository = SettingsRepository(context.applicationContext as Application)
+    val settings by settingsRepository.settingsFlow.collectAsStateWithLifecycle(initialValue = com.example.dongjingapp.data.settings.AppSettings())
     val video = VideoService().getVideoById(videoId)
     val title = video?.title ?: "视频播放"
     val uri = video?.videoUrl?.takeIf { it.isNotBlank() } ?: DemoMedia.SAMPLE_MP4_SHORT
-    val player = rememberExoPlayer(videoUri = uri)
+    val shouldAutoPlay = settings.autoPlayVideo &&
+        (!settings.wifiOnlyAutoPlay || isWifiConnected(context))
+    val player = rememberExoPlayer(videoUri = uri, playWhenReady = shouldAutoPlay)
 
     Scaffold(
         topBar = {

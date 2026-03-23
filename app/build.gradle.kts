@@ -109,6 +109,7 @@ dependencies {
 
     // 权限处理（推荐添加）
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     // 测试依赖
     testImplementation(libs.junit)

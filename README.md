@@ -32,7 +32,7 @@
 
 - Gradle Kotlin DSL、Compose、KSP + Room 编译链路
 - 底部导航（首页 / 课程 / AR / 数据 / 我的），首页与其他 Tab 切换逻辑（含回到干净首页栈）
-- 全屏页隐藏底栏：`training/*`、`video/player/*`、`video/upload`
+- 全屏页隐藏底栏：`training/*`、`video/player/*`、`video/upload`、`profile/settings/*`
 - 主题与 `MainActivity` 入口
 
 #### 2. 首页（`ui/home`）
@@ -65,18 +65,19 @@
 
 #### 7. 个人中心（`ui/profile`）
 
-- 用户信息、身体数据、训练统计卡片、设置与其它入口（仍为本地演示数据，未接账号系统）
+- 用户信息、身体数据、训练统计卡片、设置与其它入口；用户资料/主题/自动播放/训练提醒等配置存入 `DataStore` 并在播放页与设置页生效（当前用户体系仍为本地演示 `UserService`）
 
 #### 8. AR 训练（`ui/ar`）
 
 - 相机权限、**前置 CameraX 预览**
 - **MediaPipe Pose Landmarker**（LIVE_STREAM）+ Compose **Canvas** 骨架/关节点叠加
-- **`ARService`**：保留与 UI 分工说明及简单文案类接口（非算法核心）
+- 姿态识别主体在 `ARScreen`（直接绘制骨架/关节点）；`ARService` 目前仅为占位接口，未接入识别结果与纠错流程
 
 #### 9. 数据与网络层（节选）
 
 - `data/local`：`TrainingSessionEntity`、`TrainingSessionDao`、`DongJingDatabase`
-- `data/repository`：`TrainingRepository`、`CourseRepository`、`VideoUploadRepository`
+- `data/settings`：`SettingsDataStore`、`SettingsKeys`、`AppSettings/ThemeMode`
+- `data/repository`：`TrainingRepository`、`CourseRepository`、`VideoUploadRepository`、`SettingsRepository`
 - `data/network`：`NetworkModule`、`VideoUploadApi`、`ProgressRequestBody`
 
 ---
@@ -87,14 +88,16 @@
 
 | 模块 | 说明 |
 |------|------|
-| **后端对接** | 课程 / 用户 / 视频列表与上传改为真实 API；替换 `httpbin.org` 与 `CourseService` 内存数据 |
-| **账号与持久化** | 登录注册、Token、`User`/`UserStats` 入库或同步；个人中心设置项落地页 |
-| **搜索** | 首页搜索栏接入课程/教练检索（本地或远程） |
-| **视频压缩与分片** | 大文件上传前压缩、分片/断点续传（依赖服务端协议） |
-| **视频下载与分享** | `VideoService` 中删除/列表与本地缓存、系统分享 |
-| **统计深化** | 图表库（如 Vico）或更复杂趋势；`StatsService` 由 Room 聚合真实周/月数据；数据导出 |
-| **AR 进阶** | 动作识别与纠错逻辑、训练计数/卡路里与课程联动；可选 **ARCore** 场景化 |
-| **课程视频源** | 统一 CDN / 鉴权播放；详情页「开始训练」与版权策略 |
+| **业务后端对接** | 课程/用户/视频列表与上传改为真实 API；替换 `httpbin.org` 与 `CourseService`/`VideoService` 内存数据 |
+| **账号体系** | 登录/注册/Token、`User`/`UserStats` 入库或同步；个人中心「退出登录」/「修改密码」接入真实流程 |
+| **搜索** | 首页搜索栏的输入与结果页尚未联动（当前为 UI 占位） |
+| **训练提醒** | Notification设置保存开关/时间，但未实现 AlarmManager/WorkManager 定时通知调度 |
+| **隐私条款/协议** | `隐私设置` 中隐私政策/用户协议页面仍为占位入口 |
+| **清除本地数据** | 隐私设置「清除本地数据」仅展示确认弹窗，未真正清理 Room / DataStore |
+| **视频管理** | 视频删除/列表刷新/本地缓存与分享未接入（`VideoService` 删除仍为演示返回 `true`） |
+| **视频压缩与分片** | 上传仍是一次性读取 bytes 并走 multipart（缺少压缩/分片/断点续传） |
+| **统计深化** | 统计图表大部分仍基于 `StatsService` 演示数据；需要以 Room/后端数据替换并支持更多趋势/导出 |
+| **AR 动作识别与纠错** | 仅实现骨架叠加；`ARService.evaluateActionQuality` 等逻辑未与 UI/训练流程联动 |
 | **工程与发布** | `data_extraction_rules` 收紧、ProGuard（MediaPipe/CameraX）、自动化测试、性能与无障碍 |
 
 ---
@@ -107,8 +110,9 @@ app/src/main/java/com/example/dongjingapp/
 │   ├── DemoMedia.kt
 │   ├── local/              # Room：训练会话
 │   ├── model/              # Course、User
+│   ├── settings/           # DataStore：主题、自动播放、训练提醒、个人资料
 │   ├── network/            # Retrofit 演示上传
-│   ├── repository/         # Course / Training / VideoUpload
+│   ├── repository/         # Course / Training / VideoUpload / Settings
 │   └── service/            # Course、User、Stats、Video、AR
 ├── ui/
 │   ├── ar/                 # ARScreen（CameraX + MediaPipe）
@@ -117,6 +121,7 @@ app/src/main/java/com/example/dongjingapp/
 │   ├── media/              # Media3 封装
 │   ├── navigation/
 │   ├── profile/
+│   ├── settings/           # 通用/通知/隐私/账号设置
 │   ├── stats/              # StatsScreen、StatsCharts、StatsViewModel
 │   ├── theme/
 │   ├── training/           # TrainingPlayerScreen、ViewModel

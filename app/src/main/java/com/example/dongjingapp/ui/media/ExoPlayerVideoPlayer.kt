@@ -19,7 +19,7 @@ fun rememberExoPlayer(
     playWhenReady: Boolean = true
 ): ExoPlayer {
     val context = LocalContext.current
-    val player = remember(videoUri) {
+    val player = remember(videoUri, playWhenReady) {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(MediaItem.fromUri(videoUri))
             repeatMode = Player.REPEAT_MODE_OFF

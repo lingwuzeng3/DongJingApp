@@ -18,6 +18,10 @@ import com.example.dongjingapp.ui.courses.CourseDetailScreen
 import com.example.dongjingapp.ui.courses.CourseListScreen
 import com.example.dongjingapp.ui.home.HomeScreen
 import com.example.dongjingapp.ui.profile.ProfileScreen
+import com.example.dongjingapp.ui.settings.AccountSettingsScreen
+import com.example.dongjingapp.ui.settings.GeneralSettingsScreen
+import com.example.dongjingapp.ui.settings.NotificationSettingsScreen
+import com.example.dongjingapp.ui.settings.PrivacySettingsScreen
 import com.example.dongjingapp.ui.stats.StatsScreen
 import com.example.dongjingapp.ui.training.TrainingPlayerScreen
 import com.example.dongjingapp.ui.video.VideoCompareScreen
@@ -37,7 +41,8 @@ fun AppNavigation() {
     val hideBottomBar =
         route.startsWith("training/") ||
             route.startsWith("video/player/") ||
-            route == "video/upload"
+            route == "video/upload" ||
+            route.startsWith("profile/settings/")
 
     Scaffold(
         bottomBar = {
@@ -96,7 +101,28 @@ fun AppNavigation() {
                 }
 
                 composable(route = "profile") {
-                    ProfileScreen()
+                    ProfileScreen(
+                        onAccountClick = { navController.navigate("profile/settings/account") },
+                        onNotificationClick = { navController.navigate("profile/settings/notification") },
+                        onPrivacyClick = { navController.navigate("profile/settings/privacy") },
+                        onGeneralClick = { navController.navigate("profile/settings/general") }
+                    )
+                }
+
+                composable(route = "profile/settings/account") {
+                    AccountSettingsScreen(onBack = { navController.popBackStack() })
+                }
+
+                composable(route = "profile/settings/notification") {
+                    NotificationSettingsScreen(onBack = { navController.popBackStack() })
+                }
+
+                composable(route = "profile/settings/privacy") {
+                    PrivacySettingsScreen(onBack = { navController.popBackStack() })
+                }
+
+                composable(route = "profile/settings/general") {
+                    GeneralSettingsScreen(onBack = { navController.popBackStack() })
                 }
 
                 composable(route = "ar") {

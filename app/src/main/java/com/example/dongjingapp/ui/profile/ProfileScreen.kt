@@ -1,6 +1,8 @@
 package com.example.dongjingapp.ui.profile
 
+import android.app.Application
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,18 +16,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Fireplace
-import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +43,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,7 +57,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.dongjingapp.data.repository.SettingsRepository
 import com.example.dongjingapp.data.service.UserService
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -62,11 +68,32 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    onAccountClick: () -> Unit = {},
+    onNotificationClick: () -> Unit = {},
+    onPrivacyClick: () -> Unit = {},
+    onGeneralClick: () -> Unit = {}
+) {
+    val context = LocalContext.current
     val userService = UserService()
-    val user = userService.getCurrentUser()
+    val baseUser = userService.getCurrentUser()
+    val settingsRepository = SettingsRepository(context.applicationContext as Application)
+    val settings by settingsRepository.settingsFlow.collectAsStateWithLifecycle(
+        initialValue = com.example.dongjingapp.data.settings.AppSettings()
+    )
+    val user = baseUser.copy(
+        username = settings.profileName.ifBlank { baseUser.username },
+        email = settings.profileEmail.ifBlank { baseUser.email },
+        avatar = settings.profileAvatar.ifBlank { baseUser.avatar },
+        height = settings.profileHeight ?: baseUser.height,
+        weight = settings.profileWeight ?: baseUser.weight,
+        fitnessGoal = settings.profileFitnessGoal.ifBlank { baseUser.fitnessGoal }
+    )
     val userStats = userService.getUserStats()
     val coroutineScope = rememberCoroutineScope()
+    val showAboutDialog = remember { mutableStateOf(false) }
+    val showHelpDialog = remember { mutableStateOf(false) }
+    val showLogoutDialog = remember { mutableStateOf(false) }
 
     // 状态管理
     val isRefreshing = remember { mutableStateOf(false) }
@@ -118,15 +145,67 @@ fun ProfileScreen() {
                 TrainingStatsSection(stats = userStats)
 
                 // 设置功能模块
-                SettingsSection()
+                SettingsSection(
+                    onAccountClick = onAccountClick,
+                    onNotificationClick = onNotificationClick,
+                    onPrivacyClick = onPrivacyClick,
+                    onGeneralClick = onGeneralClick
+                )
 
                 // 其他功能
-                OtherSection()
+                OtherSection(
+                    onAboutClick = { showAboutDialog.value = true },
+                    onHelpClick = { showHelpDialog.value = true },
+                    onLogoutClick = { showLogoutDialog.value = true }
+                )
 
                 // 底部间距
                 Box(modifier = Modifier.height(32.dp))
             }
         }
+    }
+
+    if (showAboutDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showAboutDialog.value = false },
+            title = { Text("关于我们") },
+            text = { Text("动境 App\n专注训练、AR姿态与数据追踪。") },
+            confirmButton = {
+                TextButton(onClick = { showAboutDialog.value = false }) { Text("我知道了") }
+            }
+        )
+    }
+
+    if (showHelpDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showHelpDialog.value = false },
+            title = { Text("帮助与反馈") },
+            text = {
+                Text(
+                    "常见问题：\n" +
+                        "1. 若视频无法播放，请检查网络。\n" +
+                        "2. AR功能需相机权限。\n" +
+                        "反馈邮箱：lingwuzeng3@gmail.com"
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showHelpDialog.value = false }) { Text("关闭") }
+            }
+        )
+    }
+
+    if (showLogoutDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog.value = false },
+            title = { Text("退出登录") },
+            text = { Text("确认退出当前账号？（当前为演示流程）") },
+            confirmButton = {
+                TextButton(onClick = { showLogoutDialog.value = false }) { Text("确认退出") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog.value = false }) { Text("取消") }
+            }
+        )
     }
 }
 
@@ -179,18 +258,6 @@ fun UserInfoSection(user: com.example.dongjingapp.data.model.User) {
                 modifier = Modifier.padding(top = 4.dp)
             )
 
-            // 编辑资料按钮
-            TextButton(
-                onClick = {},
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .background(color = Color.White.copy(alpha = 0.2f), shape = MaterialTheme.shapes.medium)
-            ) {
-                Text(
-                    text = "编辑资料",
-                    color = Color.White
-                )
-            }
         }
     }
 }
@@ -393,7 +460,12 @@ fun StatItem(
  * 设置功能模块
  */
 @Composable
-fun SettingsSection() {
+fun SettingsSection(
+    onAccountClick: () -> Unit,
+    onNotificationClick: () -> Unit,
+    onPrivacyClick: () -> Unit,
+    onGeneralClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -405,22 +477,22 @@ fun SettingsSection() {
             SettingItem(
                 icon = Icons.Filled.AccountCircle,
                 title = "账号设置",
-                onClick = {}
+                onClick = onAccountClick
             )
             SettingItem(
                 icon = Icons.Filled.Notifications,
                 title = "通知设置",
-                onClick = {}
+                onClick = onNotificationClick
             )
             SettingItem(
                 icon = Icons.Filled.Lock,
                 title = "隐私设置",
-                onClick = {}
+                onClick = onPrivacyClick
             )
             SettingItem(
                 icon = Icons.Filled.Settings,
                 title = "通用设置",
-                onClick = {}
+                onClick = onGeneralClick
             )
         }
     }
@@ -430,7 +502,11 @@ fun SettingsSection() {
  * 其他功能模块
  */
 @Composable
-fun OtherSection() {
+fun OtherSection(
+    onAboutClick: () -> Unit,
+    onHelpClick: () -> Unit,
+    onLogoutClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -442,17 +518,17 @@ fun OtherSection() {
             SettingItem(
                 icon = Icons.Filled.Info,
                 title = "关于我们",
-                onClick = {}
+                onClick = onAboutClick
             )
             SettingItem(
-                icon = Icons.Filled.Help,
+                icon = Icons.AutoMirrored.Filled.Help,
                 title = "帮助与反馈",
-                onClick = {}
+                onClick = onHelpClick
             )
             SettingItem(
-                icon = Icons.Filled.Logout,
+                icon = Icons.AutoMirrored.Filled.Logout,
                 title = "退出登录",
-                onClick = {},
+                onClick = onLogoutClick,
                 isLast = true
             )
         }
@@ -489,6 +565,7 @@ fun SettingItem(
         },
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .run {
                 if (!isLast) {
                     this.padding(bottom = 1.dp)
